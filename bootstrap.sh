@@ -455,6 +455,18 @@ install_perl_modules() {
 	perl -MCPAN -e "install Net::Wigle" >> $HOME/sift-install.log 2>&1
 }
 
+#Plaso elastic output is not enabled until below commands are executed
+reinstall_urllib3_pyelasticsearch()  {
+	rm -r -f /usr/lib/python2.7/dist-packages/urllib3*
+	git clone https://github.com/pyelasticsearch/pyelasticsearch.git /tmp/pyelasticsearch >> $HOME/sift-install.log 2>&1
+	cd /tmp/pyelasticsearch
+	python setup.py build >> $HOME/sift-install.log 2>&1
+	sudo python setup.py install >> $HOME/sift-install.log 2>&1
+	cd $CDIR
+	rm -r -f /tmp/pyelasticsearch	
+}
+
+
 install_kibana() {
   CDIR=$(pwd)
   cd /tmp
@@ -712,6 +724,7 @@ complete_message_skin() {
     echo
 }
 
+
 UPGRADE_ONLY=0
 CONFIGURE_ONLY=0
 SKIN=0
@@ -844,6 +857,7 @@ if [ "$INSTALL" -eq 1 ] && [ "$CONFIGURE_ONLY" -eq 0 ]; then
     install_sift_files
 fi
 
+reinstall_urllib3_pyelasticsearch
 configure_elasticsearch
 
 # Configure for SIFT
