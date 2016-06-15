@@ -298,8 +298,6 @@ libxml2-dev
 maltegoce
 mantaray
 md5deep
-mongodb-clients
-mongodb-server
 nbd-client
 nbtscan
 netcat
