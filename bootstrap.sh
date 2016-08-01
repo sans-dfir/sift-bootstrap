@@ -360,6 +360,7 @@ tcl
 tcpflow
 tcpick
 tcpreplay
+tcpslice
 tcpstat
 tcptrace
 tcptrack
