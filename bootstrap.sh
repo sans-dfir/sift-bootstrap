@@ -460,6 +460,14 @@ install_sift_files() {
 	rm -r -f /tmp/sift-files
 }
 
+install_powershell() {
+  # Download latest PowerShell package for Ubuntu 14.04
+  echoinfo "SIFT VM: Installing PowerShell"
+  	wget -O /tmp/powershell https://github.com/PowerShell/PowerShell/releases/download/v6.0.0-alpha.9/powershell_6.0.0-alpha.9-1ubuntu1.14.04.1_amd64.deb >> $HOME/sift-install.log 2>&1
+	dpkg -i /tmp/powershell >> $HOME/sift-install.log 2>&1
+	rm -r -f /tmp/powershell
+}
+
 configure_ubuntu() {
   echoinfo "SIFT VM: Creating Cases Folder"
 	if [ ! -d /cases ]; then
@@ -769,7 +777,8 @@ if [ "$UPGRADE_ONLY" -eq 1 ]; then
   install_ubuntu_${VER}_pip_packages $ITYPE || echoerror "Updating Python Packages Failed"
   install_perl_modules || echoerror "Updating Perl Packages Failed"
   install_sift_files || echoerror "Installing/Updating SIFT Files Failed"
-
+  install_powershell || echoerror "Installing PowerShell"
+  
   echo ""
   echoinfo "SIFT Upgrade Complete"
   exit 0
@@ -813,6 +822,7 @@ if [ "$INSTALL" -eq 1 ] && [ "$CONFIGURE_ONLY" -eq 0 ]; then
     configure_cpan
     install_perl_modules
     install_sift_files
+    install_powershell
 fi
 
 # Configure for SIFT
