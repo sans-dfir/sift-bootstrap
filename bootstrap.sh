@@ -290,6 +290,7 @@ libregf-python
 libregf-tools
 libssl-dev
 libtext-csv-perl
+libunwind8
 libvshadow
 libvshadow-dev
 libvshadow-python
