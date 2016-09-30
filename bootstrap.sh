@@ -128,6 +128,11 @@ __enable_docker_repository() {
   add-apt-repository -y "deb https://apt.dockerproject.org/repo ubuntu-$(lsb_release -sc) main"
 }
 
+__enable_bro_repository() {
+    wget -q -O /tmp/bro_apt.key http://download.opensuse.org/repositories/network:bro/xUbuntu_14.04/Release.key
+    apt-key add /tmp/bro_apt.key
+    echo "deb http://download.opensuse.org/repositories/network:/bro/xUbuntu_15.10/ /" >> /etc/apt/sources.list.d/bro.list
+}
 __check_unparsed_options() {
     shellopts="$1"
     # grep alternative for SunOS
@@ -174,6 +179,9 @@ install_ubuntu_14.04_deps() {
     echoinfo "Enabling Docker Repository ... "
     __enable_docker_repository >> $HOME/sift-install.log 2>&1 || return 1
 
+    echoinfo "Enabling Bro Repository ... "
+    __enable_bro_repository >> $HOME/sift-install.log 2>&1 || return 1
+
     echoinfo "Adding Ubuntu Tweak Repository"
     add-apt-repository -y ppa:tualatrix/ppa  >> $HOME/sift-install.log 2>&1 || return 1
 
@@ -207,6 +215,8 @@ bitpim-lib
 bkhive
 bless
 blt
+bro
+broctl
 build-essential
 bulk-extractor
 cabextract
