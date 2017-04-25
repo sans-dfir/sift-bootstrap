@@ -128,6 +128,11 @@ __enable_docker_repository() {
   add-apt-repository -y "deb https://apt.dockerproject.org/repo ubuntu-$(lsb_release -sc) main"
 }
 
+__enable_bro_repository() {
+    wget -q -O /tmp/bro_apt.key http://download.opensuse.org/repositories/network:bro/xUbuntu_14.04/Release.key
+    apt-key add /tmp/bro_apt.key
+    echo "deb http://download.opensuse.org/repositories/network:/bro/xUbuntu_15.10/ /" >> /etc/apt/sources.list.d/bro.list
+}
 __check_unparsed_options() {
     shellopts="$1"
     # grep alternative for SunOS
@@ -182,6 +187,9 @@ install_ubuntu_14.04_deps() {
     echoinfo "Enabling Docker Repository ... "
     __enable_docker_repository >> $HOME/sift-install.log 2>&1 || return 1
 
+    echoinfo "Enabling Bro Repository ... "
+    __enable_bro_repository >> $HOME/sift-install.log 2>&1 || return 1
+
     echoinfo "Adding Ubuntu Tweak Repository"
     add-apt-repository -y ppa:tualatrix/ppa  >> $HOME/sift-install.log 2>&1 || return 1
 
@@ -206,6 +214,7 @@ afflib-tools
 afterglow
 aircrack-ng
 apache2
+apparmor-utils
 arp-scan
 autopsy
 bcrypt
@@ -214,6 +223,8 @@ bitpim-lib
 bkhive
 bless
 blt
+bro
+broctl
 build-essential
 bulk-extractor
 cabextract
@@ -449,6 +460,22 @@ install_ubuntu_14.04_pip_packages() {
     return 0
 }
 
+# fix apparmor profiles that cause really frustrating and hard to fix problems
+fix_apparmor_profiles() {
+    # list full path for each binary to diable (space-separated)
+    apparmor_disable_binaries="/usr/sbin/tcpdump"
+
+    for APPARMOR_BINARY in $apparmor_disable_binaries; do
+        CURRENT_ERROR=0
+        echoinfo "Disabling apparmor profile: $APPARMOR_BINARY"
+        aa-complain $APPARMOR_BINARY
+        if [ $CURRENT_ERROR -ne 0 ]; then
+            echoerror "Error disabling profile for $APPARMOR_BINARY"
+        fi
+    done
+
+    return 0
+}
 
 # Global: Works on 12.04 and 14.04
 install_perl_modules() {
@@ -775,6 +802,7 @@ if [ "$UPGRADE_ONLY" -eq 1 ]; then
   install_ubuntu_${VER}_packages $ITYPE || echoerror "Updating Packages Failed"
   install_ubuntu_${VER}_pip_packages $ITYPE || echoerror "Updating Python Packages Failed"
   install_perl_modules || echoerror "Updating Perl Packages Failed"
+  apparmor_disable_binaries || echoerror "Disabling AppArmor Profiles Failed"
   install_sift_files || echoerror "Installing/Updating SIFT Files Failed"
 
   echo ""
@@ -819,6 +847,7 @@ if [ "$INSTALL" -eq 1 ] && [ "$CONFIGURE_ONLY" -eq 0 ]; then
     install_ubuntu_${VER}_pip_packages $ITYPE
     configure_cpan
     install_perl_modules
+    apparmor_disable_binaries
     install_sift_files
 fi
 
